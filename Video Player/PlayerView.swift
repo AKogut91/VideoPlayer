@@ -11,6 +11,7 @@ import AVFoundation
 enum PlayerViewButtonState {
     case play
     case pause
+    case stop
 }
 
 enum PlayerButtonType {
@@ -23,7 +24,6 @@ protocol PlayerViewDelegate: AnyObject {
     func duration(seconds: Float)
     func timeElapsed(seconds: Float, sliderValue: Float)
     func sliderMaximum(value: Float)
-    func finished()
 }
 
 final class PlayerView: UIView {
@@ -49,12 +49,7 @@ final class PlayerView: UIView {
     
     private var state: PlayerViewButtonState = .pause {
         didSet {
-            switch state {
-            case .play:
-                delegate?.playPauseAction(state: .play)
-            case .pause:
-                delegate?.playPauseAction(state: .pause)
-            }
+            delegate?.playPauseAction(state: state)
         }
     }
     
@@ -155,7 +150,8 @@ final class PlayerView: UIView {
     }
     
     @objc func playerDidFinishPlaying(note: NSNotification){
-        delegate?.finished()
+        state = .stop
+        repeatPlayer()
     }
     
     // MARK: - Internal Methods
@@ -170,7 +166,7 @@ final class PlayerView: UIView {
         case .play:
             player?.pause()
             state = .pause
-        case .pause:
+        case .pause,  .stop:
             player?.play()
             state = .play
         }
@@ -204,9 +200,16 @@ final class PlayerView: UIView {
         player?.seek(to: updatedTime, toleranceBefore: CMTime.zero, toleranceAfter: CMTime.zero)
     }
     
+    func repeatPlayer() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            self.player?.seek(to: CMTime.zero)
+            self.player?.play()
+            self.state = .play
+        }
+    }
+    
     deinit {
         playerItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
         print("deinit of PlayerView")
     }
-    
 }

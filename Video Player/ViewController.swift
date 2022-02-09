@@ -99,10 +99,8 @@ extension ViewController: PlayerViewDelegate {
             playPauseButton.setImage(UIImage(systemName: "pause.fill"), for: .normal)
         case .pause:
             playPauseButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
+        case .stop:
+            playPauseButton.setImage(UIImage(systemName: "stop.fill"), for: .normal)
         }
-    }
-    
-    func finished() {
-        playPauseButton.setImage(UIImage(systemName: "stop.fill"), for: .normal)
     }
 }
