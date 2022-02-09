@@ -23,6 +23,7 @@ protocol PlayerViewDelegate: AnyObject {
     func duration(seconds: Float)
     func timeElapsed(seconds: Float, sliderValue: Float)
     func sliderMaximum(value: Float)
+    func finished()
 }
 
 final class PlayerView: UIView {
@@ -117,9 +118,10 @@ final class PlayerView: UIView {
         playerItem = AVPlayerItem(asset: asset)
         playerItem?.addObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), options: [.old, .new], context: &playerItemContext)
         
-        DispatchQueue.main.async { [weak self] in
-            self?.player = AVPlayer(playerItem: self?.playerItem!)
-            self?.setupTimeObserver()
+        DispatchQueue.main.async {
+            self.player = AVPlayer(playerItem: self.playerItem)
+            self.setupTimeObserver()
+            self.setupPlayerDidFinishPlayingObserver()
         }
     }
     
@@ -140,6 +142,20 @@ final class PlayerView: UIView {
             let currentTime = Float(CMTimeGetSeconds(player?.currentTime() ?? CMTime.init()))
             delegate?.timeElapsed(seconds: timeElapsed, sliderValue: currentTime)
         }
+    }
+    
+    /*
+     Create a  observer to check the movie player is Finish Playing
+     */
+    private func setupPlayerDidFinishPlayingObserver() {
+        NotificationCenter.default.addObserver(self,
+                                               selector:#selector(self.playerDidFinishPlaying(note:)),
+                                               name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
+                                               object: self.player?.currentItem)
+    }
+    
+    @objc func playerDidFinishPlaying(note: NSNotification){
+        delegate?.finished()
     }
     
     // MARK: - Internal Methods

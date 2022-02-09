@@ -101,4 +101,8 @@ extension ViewController: PlayerViewDelegate {
             playPauseButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
         }
     }
+    
+    func finished() {
+        playPauseButton.setImage(UIImage(systemName: "stop.fill"), for: .normal)
+    }
 }
