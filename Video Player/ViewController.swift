@@ -18,13 +18,6 @@ final class ViewController: UIViewController {
     @IBOutlet private weak var timeSlider: UISlider!
     
      // MARK: - Properties
-    private let timeRemainingFormatter: DateComponentsFormatter = {
-        let formatter = DateComponentsFormatter()
-        formatter.zeroFormattingBehavior = .pad
-        formatter.allowedUnits = [.minute, .second]
-        return formatter
-    }()
-
     private let videoURL =  "http://www.exit109.com/~dnn/clips/RW20seconds_2.mp4" //"http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
     
     // MARK: - Life Cycler
@@ -46,6 +39,7 @@ final class ViewController: UIViewController {
         startTimeLabel.text = "00:00"
         durationLabel.text = "00:00"
         timeSlider.value = 0.0
+        timeSlider.isContinuous = true
     }
     
     func playVideo() {
@@ -54,9 +48,12 @@ final class ViewController: UIViewController {
     }
     
     func createTimeString(time: Float) -> String {
-        let components = NSDateComponents()
+        var components = DateComponents()
         components.second = Int(max(0.0, time))
-        return timeRemainingFormatter.string(from: components as DateComponents)!
+        let formatter = DateComponentsFormatter()
+        formatter.zeroFormattingBehavior = .pad
+        formatter.allowedUnits = [.minute, .second]
+        return formatter.string(from: components) ?? ""
     }
     
     // MARK: - IBActions
@@ -65,16 +62,18 @@ final class ViewController: UIViewController {
     }
     
     @IBAction func timeSliderDidChange(_ sender: UISlider) {
+//        Как выбрать разумный timescale, чтобы не получить обрезанный кусок? Apple рекомендует 600 для видео (объясняя это тем, что 600 универсален для большинства видео с частотой 24, 25 и 30 кадров в секунду). //https://habr.com/ru/post/173897/
+        
         let newTime = CMTime(seconds: Double(sender.value), preferredTimescale: 600)
         playerView.set(newTime: newTime)
     }
     
     @IBAction func seekForward(_ sender: Any) {
-        playerView.seekBackwardForward(type: .forward)
+        playerView.seekBackwardForward(type: .forward, seconds: 5)
     }
 
     @IBAction func seekBackward(_ sender: Any) {
-        playerView.seekBackwardForward(type: .backward)
+        playerView.seekBackwardForward(type: .backward, seconds: 5)
     }
 }
 

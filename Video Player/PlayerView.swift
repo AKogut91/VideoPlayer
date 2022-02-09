@@ -164,7 +164,7 @@ final class PlayerView: UIView {
         player?.seek(to: newTime, toleranceBefore: .zero, toleranceAfter: .zero)
     }
     
-    func seekBackwardForward(type: PlayerButtonType) {
+    func seekBackwardForward(type: PlayerButtonType, seconds: Double) {
         guard let currentPlayer  = player else {
             return
         }
@@ -174,7 +174,7 @@ final class PlayerView: UIView {
         
         switch type {
         case .backward:
-            newTime = playerCurrentTime - 5
+            newTime = playerCurrentTime - seconds
             
             if newTime < 0 {
                 newTime = 0
