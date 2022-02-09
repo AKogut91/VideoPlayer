@@ -28,6 +28,7 @@ protocol PlayerViewDelegate: AnyObject {
 
 final class PlayerView: UIView {
     
+    // MARK: - Properties
     var player: AVPlayer? {
         get {
             return playerLayer.player
@@ -172,7 +173,9 @@ final class PlayerView: UIView {
         }
     }
     
-    func set(newTime: CMTime) {
+    func seek(value: Double) {
+        //        Как выбрать разумный timescale, чтобы не получить обрезанный кусок? Apple рекомендует 600 для видео (объясняя это тем, что 600 универсален для большинства видео с частотой 24, 25 и 30 кадров в секунду). //https://habr.com/ru/post/173897/
+        let newTime = CMTime(seconds: value, preferredTimescale: 600)
         player?.seek(to: newTime, toleranceBefore: .zero, toleranceAfter: .zero)
     }
     
@@ -210,6 +213,7 @@ final class PlayerView: UIView {
     
     deinit {
         playerItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
+        NotificationCenter.default.removeObserver(self)
         print("deinit of PlayerView")
     }
 }

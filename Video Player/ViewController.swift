@@ -47,25 +47,13 @@ final class ViewController: UIViewController {
         playerView.play(with: url)
     }
     
-    func createTimeString(time: Float) -> String {
-        var components = DateComponents()
-        components.second = Int(max(0.0, time))
-        let formatter = DateComponentsFormatter()
-        formatter.zeroFormattingBehavior = .pad
-        formatter.allowedUnits = [.minute, .second]
-        return formatter.string(from: components) ?? ""
-    }
-    
     // MARK: - IBActions
     @IBAction func playPauseAction(_ sender: UIButton) {
         playerView.playerAction()
     }
     
     @IBAction func timeSliderDidChange(_ sender: UISlider) {
-//        Как выбрать разумный timescale, чтобы не получить обрезанный кусок? Apple рекомендует 600 для видео (объясняя это тем, что 600 универсален для большинства видео с частотой 24, 25 и 30 кадров в секунду). //https://habr.com/ru/post/173897/
-        
-        let newTime = CMTime(seconds: Double(sender.value), preferredTimescale: 600)
-        playerView.set(newTime: newTime)
+        playerView.seek(value: Double(sender.value))
     }
     
     @IBAction func seekForward(_ sender: Any) {
@@ -86,11 +74,11 @@ extension ViewController: PlayerViewDelegate {
     
     func timeElapsed(seconds: Float, sliderValue: Float) {
         timeSlider.value = sliderValue
-        startTimeLabel.text = createTimeString(time: seconds)
+        startTimeLabel.text = seconds.getTimeString()
     }
     
     func duration(seconds: Float) {
-        durationLabel.text = createTimeString(time: seconds)
+        durationLabel.text = seconds.getTimeString()
     }
     
     func playPauseAction(state: PlayerViewButtonState) {
